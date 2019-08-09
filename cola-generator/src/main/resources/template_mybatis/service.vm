@@ -1,0 +1,13 @@
+package ${servicePackage};
+
+import tech.kictto.common.core.BaseService;
+import ${entityPackage}.${className}Entity;
+
+
+/**
+ * 
+ * @author kictto code generator
+ *
+ */
+public interface ${className}Service extends BaseService<${className}Entity> {
+}

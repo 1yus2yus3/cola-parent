@@ -1,0 +1,38 @@
+package ${serviceImplPackage};
+#set($vv = false)
+#foreach($element in ${tableInfo.baseColumns})
+ #if($element.javaProperty == "valid")
+  #set($vv = true)
+ #end
+#end
+
+#if($vv==true)
+import com.baomidou.mybatisplus.mapper.Wrapper;
+#end
+import org.springframework.stereotype.Component;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import ${entityPackage}.${className}${entityFileSuffix};
+import ${repoPackage}.${className}${repoFileSuffix};
+import ${servicePackage}.${className}${serviceFileSuffix};
+
+import java.io.Serializable;
+#if($vv==true)
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+#end
+/**
+* Copyright (C),
+* @author: CodeGenerator
+* @date: ${currentTime}
+* @description:
+*/
+#set( $end=$className.length() )
+#set( $str=$className.substring( 1 ,$end ) )
+#set( $start = $className.substring(0,1).toLowerCase() )
+//@Transactional
+//@Service("${start}${str}${serviceFileSuffix}")
+@Component
+public class ${className}${serviceImplFileSuffix} extends ServiceImpl<${className}${repoFileSuffix}, ${className}${entityFileSuffix}> implements ${className}${serviceFileSuffix} {
+
+}

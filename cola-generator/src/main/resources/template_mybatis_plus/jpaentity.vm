@@ -1,0 +1,59 @@
+package ${entityPackage};
+
+import javax.persistence.*;
+import java.io.Serializable;
+
+/**
+* Copyright (C)
+* FileName: ${className}${businessServiceFileSuffix}
+* Author: CodeGenerator
+* Date: ${currentTime}
+* Description:
+*/
+@Entity
+@Table(name = "${tableInfo.name}")
+public class ${className}${entityFileSuffix} implements Serializable {
+
+#foreach($element in ${tableInfo.baseColumns})
+	/**
+	* ${element.getRemarks()}
+	*/
+#if($element.isPk())
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+#end
+	@Column(name = "${element.name}")
+	private ${element.getFullyQualifiedJavaType().getFullyQualifiedName()} ${element.javaProperty};
+#end
+
+	public ${className}${entityFileSuffix}() {
+	}
+
+#foreach($element in ${tableInfo.baseColumns})
+	#set( $end=$element.javaProperty.length() )
+	#set( $str=$element.javaProperty.substring( 1 ,$end ) )
+	#set( $start = $element.javaProperty.substring(0,1).toUpperCase() )
+	#set( $get = "get")
+	#if($element.getFullyQualifiedJavaType().getFullyQualifiedName().endsWith("boolean") )
+		#set( $get = "is")
+	#end
+
+	public ${element.getFullyQualifiedJavaType().getFullyQualifiedName()} $get$start$str() {
+		return ${element.javaProperty};
+	}
+
+	public void set$start$str(${element.getFullyQualifiedJavaType().getFullyQualifiedName()} ${element.javaProperty}) {
+		this.${element.javaProperty} = ${element.javaProperty};
+	}
+#end
+
+	@Override
+	public String toString() {
+		return "${className}DO{" +
+#foreach($element in ${tableInfo.baseColumns})
+			"#if($velocityCount != 1),#end${element.javaProperty}=" + ${element.javaProperty} +
+#end
+		'}';
+	}
+
+}

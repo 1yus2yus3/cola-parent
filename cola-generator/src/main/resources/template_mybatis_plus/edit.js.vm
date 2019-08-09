@@ -1,0 +1,74 @@
+mini.parse();
+var form = new mini.Form("form");
+formfocus(form);
+function SetData(data) {
+    if (data.action == "edit" || data.action == "detail") {
+        $.ajax({
+            url: 'getById?id=' + data.id,
+            type: 'GET',
+            dataType: 'json',
+            success: function (e) {
+                if (e.success) {
+                    form.setData(e.data);
+                    if (data.action == "detail") {
+                        labelModel(form);
+                        $("#btnOK").hide();
+                    }
+                } else {
+                    mini.alert(e.msg);
+                }
+            }
+        });
+    }
+}
+function SaveData(data) {
+    $.ajax({
+        url: "insert",
+        type: 'POST',
+        contentType: "application/json;charset=UTF-8",
+        dataType: 'json',
+        data: JSON.stringify(data),
+        async: false,
+        success: function (e) {
+            if (e.success) {
+                closeWindow("ok");
+            } else {
+                btnOkEnabled(true);
+                mini.alert(e.msg);
+            }
+        }
+    });
+}
+function UpdateData(data) {
+    $.ajax({
+        url: "update",
+        type: 'PUT',
+        contentType: "application/json;charset=UTF-8",
+        dataType: 'json',
+        data: JSON.stringify(data),
+        async: false,
+        success: function (e) {
+            if (e.success) {
+                closeWindow("ok");
+            } else {
+                btnOkEnabled(true);
+                mini.alert(e.msg);
+            }
+        }
+    });
+}
+function onOk(e) {
+    form.validate();
+    if (form.isValid() == false) return;
+    var data = form.getData();
+    btnOkEnabled(false);
+    if (data.id) {
+        UpdateData(data);
+    } else {
+        SaveData(data);
+    }
+}
+function onCancel(e) {
+    closeWindow("cancel");
+}
+

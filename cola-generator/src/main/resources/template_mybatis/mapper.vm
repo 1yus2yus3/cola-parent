@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="${entityPackage}.${className}Entity">
+
+    <!-- all_columns应该是全部列 -->
+    <sql id="all_columns">
+#foreach($element in ${tableInfo.baseColumns})
+    `${element.name}`#if(!${foreach.last}),#end
+
+#end
+    </sql>
+    <!-- insert_columns应该是全部没有默认值的列 -->
+    <sql id="insert_columns">
+#set($insertColumnStr="")
+#foreach($element in ${tableInfo.baseColumns})
+#if(!${element.getDefaultValue()})
+#set($insertColumnStr="$insertColumnStr    `${element.name}`,$newline")
+#end
+#end
+#set($splitLength=2)
+#set($insertColumnEndIndex = $insertColumnStr.length()-$splitLength)
+#set($insertColumnStr=$insertColumnStr.substring(0, $insertColumnEndIndex) )
+$insertColumnStr
+    </sql>
+
+    <select id="selectById"
+            parameterType="long"
+            resultType="${entityPackage}.${className}Entity">
+        SELECT
+        <include refid="all_columns"/>
+        FROM ${tableInfo.name}
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectTotalCount"
+            resultType="int"
+            parameterType="${entityPackage}.${className}Entity">
+        SELECT COUNT(1)
+        FROM ${tableInfo.name}
+        <where>
+            <if test="id!=null AND id!=''">
+                AND id = #{id}
+            </if>
+            <if test="valid!=null AND valid!='' OR valid == false">
+                AND valid = #{valid}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectPageList"
+            resultType="${entityPackage}.${className}Entity"
+            parameterType="tech.kictto.common.util.PagerRequestBean">
+        SELECT
+        <include refid="all_columns"/>
+        FROM ${tableInfo.name}
+        <where>
+            <if test="q.id!=null AND q.id!=''">
+                AND id = #{q.id}
+            </if>
+            <if test="q.valid!=null AND q.valid!='' OR q.valid == false">
+                AND valid = #{q.valid}
+            </if>
+        </where>
+        <if test="sortField != null and sortField !='' and sortOrder != null and sortOrder !='' ">
+            order by #{sortField} #{sortOrder}
+        </if>
+        limit #{startIndex},#{pageSize}
+    </select>
+
+    <insert id="insertEntity"
+            parameterType="${entityPackage}.${className}Entity">
+        INSERT INTO ${tableInfo.name}(
+        <include refid="insert_columns"/>
+        )VALUES(
+#set($start='#{')
+#set($end = '}')
+#set($insertColumnVal="")
+#foreach($element in ${tableInfo.baseColumns})
+#if(!${element.getDefaultValue()})
+#set($insertColumnVal="$insertColumnVal        $start${element.javaProperty}$end,$newline")
+#end
+#end
+#set($splitLength=2)
+#set($insertColumnEndIndex = $insertColumnVal.length()-$splitLength)
+#set($insertColumnVal=$insertColumnVal.substring(0, $insertColumnEndIndex) )
+$insertColumnVal
+        )
+    </insert>
+
+    <update id="updateEntity"
+            parameterType="${entityPackage}.${className}Entity">
+        UPDATE ${tableInfo.name}
+        <trim prefix="SET" suffixOverrides=",">
+#foreach($element in ${tableInfo.baseColumns})
+#if(${element.name}!="id")
+            <if test="${element.name}!=null">`${element.name}`=#{${element.javaProperty}},</if>
+#end
+#end
+        </trim>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteEntity"
+            parameterType="${entityPackage}.${className}Entity">
+        UPDATE ${tableInfo.name}
+        SET `valid` = false
+        WHERE id = #{id}
+    </update>
+
+    <!-- 基本的DAO操作结束 -->
+
+</mapper>

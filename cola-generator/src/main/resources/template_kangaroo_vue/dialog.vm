@@ -1,0 +1,86 @@
+#set( $end=$className.length() )
+#set( $str=$className.substring( 1 ,$end ) )
+#set( $start = $className.substring(0,1).toLowerCase() )
+<template>
+    <djFormDialog
+            ref="formDialog"
+            :getDetail="getDetail"
+            :model.sync="model"
+            :rules="rules"
+            :addMethod="save"
+            :editMethod="update">
+        #foreach($element in ${tableInfo.baseColumns})
+            #if($element.javaProperty!="createDate"&&$element.javaProperty!="creatorId"&&$element.javaProperty!="creator"
+            &&$element.javaProperty!="modifyDate"&&$element.javaProperty!="modifier"&&$element.javaProperty!="modifierId"
+            &&$element.javaProperty!="valid"&&$element.javaProperty!="id")
+                <el-form-item label="${element.getRemarks()}" prop="${element.javaProperty}">
+                    <el-input v-model="model.${element.javaProperty}"></el-input>
+                </el-form-item>
+            #end
+        #end
+    </djFormDialog>
+</template>
+<style rel="stylesheet/scss" lang="scss">
+
+</style>
+<script type="text/babel">
+    import djFormDialog from 'src/components/form/dialog.vue';
+    import {
+        get${className}ById,
+        insert${className},
+        update${className},
+    } from 'src/api/modules/$start$str';
+
+    export default {
+        data() {
+            return {
+                model: {
+            #foreach($element in ${tableInfo.baseColumns})
+                #if($element.javaProperty!="createDate"&&$element.javaProperty!="creatorId"&&$element.javaProperty!="creator"
+                &&$element.javaProperty!="modifyDate"&&$element.javaProperty!="modifier"&&$element.javaProperty!="modifierId"
+                &&$element.javaProperty!="valid"&&$element.javaProperty!="id")
+                    ${element.javaProperty}:null,
+                #end
+            #end
+                },
+                rules: {
+            #foreach($element in ${tableInfo.baseColumns})
+                #if($element.javaProperty!="createDate"&&$element.javaProperty!="creatorId"&&$element.javaProperty!="creator"
+                &&$element.javaProperty!="modifyDate"&&$element.javaProperty!="modifier"&&$element.javaProperty!="modifierId"
+                &&$element.javaProperty!="valid"&&$element.javaProperty!="id")
+                    ${element.javaProperty}:"${element.getRemarks()}",
+                #end
+            #end
+                }
+            };
+        },
+        methods: {
+            detail(row) {
+                return this.$refs.formDialog.detail(row);
+            },
+            edit(row) {
+                return this.$refs.formDialog.edit(row);
+            },
+            add() {
+                return this.$refs.formDialog.add();
+            },
+            save() {
+                return insert${className}(this.model);
+            },
+            update(){
+                return update${className}(this.model);
+            },
+            getDetail(row) {
+                return get${className}ById({id:row.id}).then(res => {
+                    if (!res.success) {
+                        return;
+                    }
+                    Object.assign(this.model, res.data);
+                });
+            }
+        },
+        components: {
+            djFormDialog,
+        },
+    };
+</script>

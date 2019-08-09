@@ -1,0 +1,18 @@
+package ${servicePackage};
+
+
+import com.baomidou.mybatisplus.service.IService;
+import ${entityPackage}.${className}${entityFileSuffix};
+
+import java.io.Serializable;
+
+
+/**
+* Copyright (C),
+* @author: CodeGenerator
+* @date: ${currentTime}
+* @description:
+*/
+public interface ${className}${serviceFileSuffix} extends IService<${className}${entityFileSuffix}> {
+
+}

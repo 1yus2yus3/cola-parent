@@ -1,0 +1,98 @@
+mini.parse();
+var grid = mini.get("grid");
+
+function add() {
+    mini.open({
+        url: "edit.html",
+        title: "新增",
+        width: 800,
+        height: 500,
+        allowResize: false,
+        onload: function () {
+            var data = {action: "add"};
+        },
+        ondestroy: function (action) {
+            if (action == "ok") {
+                grid.reload();
+            }
+        }
+    });
+}
+function edit(id) {
+    mini.open({
+        url: "edit.html",
+        title: "编辑",
+        width: 800,
+        height: 500,
+        allowResize: false,
+        onload: function () {
+            var iframe = this.getIFrameEl();
+            var data = {action: "edit", id: id};
+            iframe.contentWindow.SetData(data);
+        },
+        ondestroy: function (action) {
+            if (action == "ok") {
+                grid.reload();
+            }
+        }
+    });
+}
+function remove(id) {
+    mini.confirm("确定删除记录？", "确定？", function (action) {
+            if (action == "ok") {
+                grid.loading("删除中，请稍后......");
+                $.ajax({
+                    type: 'GET',
+                    url: "delete?id=" + id,
+                    dataType: "json",
+                    success: function (e) {
+                        if (e.success) {
+                            grid.reload();
+                        } else {
+                            mini.alert(e.msg);
+                            grid.unmask();
+                        }
+                    }
+                });
+            }
+        }
+    );
+}
+function detail(id) {
+    mini.open({
+        url: "edit.html",
+        title: "详细",
+        width: 800,
+        height: 500,
+        allowResize: false,
+        onload: function () {
+            var iframe = this.getIFrameEl();
+            var data = {action: "detail", id: id};
+            iframe.contentWindow.SetData(data);
+
+        },
+        ondestroy: function (action) {
+
+        }
+    });
+}
+grid.on("drawcell", function (e) {
+    var record = e.record,
+        field = e.field;
+    if (field == "op") {
+        e.cellStyle = "text-align:center";
+        e.cellHtml = '<a href="javascript:detail(\'' + record.id + '\')">详情</a>&nbsp;'
+            + '<a href="javascript:edit(\'' + record.id + '\')">编辑</a>&nbsp;'
+            + '<a href="javascript:remove(\'' + record.id + '\')">删除</a>';
+    }
+});
+function onKeyEnter(e) {
+    search();
+}
+function search() {
+    var id = mini.get("id").getValue();
+    grid.load({id: id});
+}
+$(document).ready(function () {
+    grid.load();
+}); 

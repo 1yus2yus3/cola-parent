@@ -1,0 +1,303 @@
+<template>
+  <section>
+    <!--工具条-->
+    <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
+      <el-form :inline="true" :model="filters">
+        <el-form-item>
+          <el-input size="small" v-model="filters.id" placeholder="ID"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" size="small" v-on:click="getList">查询</el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" size="small" @click="handleAdd">新增</el-button>
+        </el-form-item>
+      </el-form>
+    </el-col>
+
+    <!--列表-->
+    <el-table :data="records" highlight-current-row v-loading="listLoading" @selection-change="selectChange"
+              style="width: 100%;">
+      <el-table-column type="selection">
+      </el-table-column>
+      <el-table-column type="index">
+      </el-table-column>
+#foreach($element in ${tableInfo.baseColumns})
+#if(!$element.isPk())
+      <el-table-column prop="${element.javaProperty}" label="${element.getRemarks()}">
+      </el-table-column>
+#end
+#end
+      <el-table-column label="操作" width="150">
+        <template scope="scope">
+          <el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+          <el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <!--工具条-->
+    <el-col :span="24" class="toolbar">
+      <!--<el-button type="danger" @click="batchRemove" :disabled="this.selections.length===0">批量删除</el-button>-->
+      <el-pagination layout="prev, pager, next" @current-change="handleCurrentChange" :page-size='pageSize'
+                     :total="total" style="float:right;">
+      </el-pagination>
+    </el-col>
+
+    <!--编辑界面-->
+    <el-dialog title="编辑" v-model="editFormVisible" :close-on-click-modal="false">
+      <el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
+#foreach($element in ${tableInfo.baseColumns})
+#if(!$element.isPk())
+    <el-form-item label="${element.getRemarks()}" prop="${element.javaProperty}">
+        <el-input v-model="editForm.${element.javaProperty}" auto-complete="off"></el-input>
+    </el-form-item>
+#end
+#end
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click.native="editFormVisible = false">取消</el-button>
+        <el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
+      </div>
+    </el-dialog>
+
+    <!--新增界面-->
+    <el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
+      <el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
+#foreach($element in ${tableInfo.baseColumns})
+#if(!$element.isPk())
+        <el-form-item label="${element.getRemarks()}" prop="${element.javaProperty}">
+          <el-input v-model="addForm.${element.javaProperty}" auto-complete="off"></el-input>
+        </el-form-item>
+#end
+#end
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click.native="addFormVisible = false">取消</el-button>
+        <el-button type="primary" @click.native="addSubmit" :loading="addLoading">提交</el-button>
+      </div>
+    </el-dialog>
+  </section>
+</template>
+
+<script>
+    import util from '../../common/js/util'
+    //import NProgress from 'nprogress'
+
+    export default {
+        data() {
+            return {
+                filters: {
+                    id: ''
+                },
+                records: [],
+                total: 0,
+                current: 1,
+                pageSize: 20,
+                listLoading: false,
+                selections: [],//列表选中列
+
+                editFormVisible: false,//编辑界面是否显示
+                editLoading: false,
+                editFormRules: {
+/*                    name: [
+                        {required: true, message: '请输入姓名', trigger: 'blur'}
+                    ]*/
+                },
+                //编辑界面数据
+                editForm: {
+#foreach($element in ${tableInfo.baseColumns})
+                    ${element.javaProperty}: ''#if(!${foreach.last}),#end
+
+#end
+                },
+
+                addFormVisible: false,//新增界面是否显示
+                addLoading: false,
+                addFormRules: {
+                    /*name: [
+                        {required: true, message: '请输入姓名', trigger: 'blur'}
+                    ]*/
+                },
+                //新增界面数据
+                addForm: {
+#foreach($element in ${tableInfo.baseColumns})
+                    ${element.javaProperty}: ''#if(!${foreach.last}),#end
+
+#end
+                },
+                addFormOrigin: {
+#foreach($element in ${tableInfo.baseColumns})
+                    ${element.javaProperty}: ''#if(!${foreach.last}),#end
+
+#end
+#[[
+                }
+            }
+        },
+        methods: {
+            //性别显示转换
+            formatSex: function (row, column) {
+                return row.sex == 1 ? '男' : row.sex == 0 ? '女' : '未知';
+            },
+            handleCurrentChange(val) {
+                this.current = val;
+                this.getList();
+            },
+            //获取列表
+            getList() {
+                let param = {
+                    current: this.current,
+                    size: this.pageSize
+                };
+                this.listLoading = true;
+]]#
+#if($putModuleNameIntoUrl)
+#[[             this.$http.get("]]#${moduleName}/${className}/getPageList", {
+#else
+#[[             this.$http.get("]]#${className}/getPageList", {
+#end
+#[[
+                    params: param
+                }).then(({data}) => {
+                    this.total = data.data.total;
+                    this.records = data.data.records;
+                    this.listLoading = false;
+                });
+            },
+            //删除
+            handleDel: function (index, row) {
+                this.$confirm('确认删除该记录吗?', '提示', {
+                    type: 'warning'
+                }).then(() => {
+                    this.listLoading = true;
+]]#
+#if($putModuleNameIntoUrl)
+#[[                 this.$http.post("]]#${moduleName}/${className}/delete",null,{params:{id:row.id}}).then((res) => {
+#else
+#[[                 this.$http.post("]]#${className}/delete",null,{params:{id:row.id}}).then((res) => {
+#end
+#[[
+                        this.listLoading = false;
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getList();
+                    });
+                });
+            },
+            //显示编辑界面
+            handleEdit: function (index, row) {
+                this.editFormVisible = true;
+                this.editLoading = true;
+]]#
+#if($putModuleNameIntoUrl)
+#[[             this.$http.get("]]#${moduleName}/${className}/getById", {
+#else
+#[[             this.$http.get("]]#${className}/getById", {
+#end
+#[[
+                    params: {id: row.id}
+                }).then(({data}) => {
+                this.editLoading = false;
+                this.editform = Object.assign(this.editForm,data.data);
+                });
+            },
+            //显示新增界面
+            handleAdd: function () {
+                this.addFormVisible = true;
+                this.addForm = Object.assign({}, this.addFormOrigin);
+            },
+            //编辑
+            editSubmit: function () {
+                this.$refs.editForm.validate((valid) => {
+                    if (valid) {
+                        this.$confirm('确认提交吗？', '提示', {}).then(() => {
+                            this.editLoading = true;
+                            //NProgress.start();
+                            let para = Object.assign({}, this.editForm);
+                            //此处进行参数的处理
+]]#
+#if($putModuleNameIntoUrl)
+#[[                         this.$http.post("]]#${moduleName}/${className}/update", para).then((res) => {
+#else
+#[[                         this.$http.post("]]#${className}/update", para).then((res) => {
+#end
+#[[
+                                this.editLoading = false;
+                                this.$message({
+                                    message: '提交成功',
+                                    type: 'success'
+                                });
+                                this.$refs['editForm'].resetFields();
+                                this.editFormVisible = false;
+                                this.getList();
+                            });
+                        });
+                    }
+                });
+            },
+            //新增
+            addSubmit: function () {
+                this.$refs.addForm.validate((valid) => {
+                    if (valid) {
+                        this.$confirm('确认提交吗？', '提示', {}).then(() => {
+                            this.addLoading = true;
+                            let para = Object.assign({}, this.addForm);
+                            //此处进行参数的处理
+]]#
+#if($putModuleNameIntoUrl)
+#[[                         this.$http.post("]]#${moduleName}/${className}/insert", para).then((res) => {
+#else
+#[[                         this.$http.post("]]#${className}/insert", para).then((res) => {
+#end
+#[[
+                                this.addLoading = false;
+                                this.$message({
+                                    message: '提交成功',
+                                    type: 'success'
+                                });
+                                this.$refs['addForm'].resetFields();
+                                this.addFormVisible = false;
+                                this.getList();
+                            });
+                        });
+                    }
+                });
+            },
+            selectChange: function (selections) {
+                this.selections = selections;
+            }
+/*          ,
+            //批量删除
+            batchRemove: function () {
+                var ids = this.selections.map(item => item.id).toString();
+                this.$confirm('确认删除选中记录吗？', '提示', {
+                    type: 'warning'
+                }).then(() => {
+                    this.listLoading = true;
+                    let para = {ids: ids};
+                    this.$http.post('/PointUser', para).then((res) => {
+                        this.listLoading = false;
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getList();
+                    });
+                });
+            }
+    */
+        },
+        mounted() {
+            this.getList();
+        }
+    }
+
+</script>
+
+<style scoped>
+
+</style>
+]]#

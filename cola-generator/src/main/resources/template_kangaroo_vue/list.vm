@@ -1,0 +1,120 @@
+#set( $Columns2=$tableInfo.baseColumns[1] )
+#set( $end=$className.length() )
+#set( $str=$className.substring( 1 ,$end ) )
+#set( $start = $className.substring(0,1).toLowerCase() )
+#set( $Kouhao="(")
+
+<template>
+    <dj-content>
+        <div slot="title-right">
+            <el-button type="primary" @click="handleAdd">新增</el-button>
+        </div>
+        <!--工具条-->
+        <dj-list :getData="getData"
+                 :filterData.sync="filters"
+                 ref="list">
+            <el-form :inline="true" slot="search" :model="filters">
+                <el-form-item label="${Columns2.getRemarks()}">
+                    <el-input size="small" v-model="filters.${Columns2.javaProperty}" placeholder="${Columns2.getRemarks()}"></el-input>
+                </el-form-item>
+            </el-form>
+            <template slot="table">
+#foreach($element in ${tableInfo.baseColumns})
+#if($element.javaProperty!="createDate"&&$element.javaProperty!="creatorId"&&$element.javaProperty!="creator"
+&&$element.javaProperty!="modifyDate"&&$element.javaProperty!="modifier"&&$element.javaProperty!="modifierId"
+&&$element.javaProperty!="valid")
+                <el-table-column prop="${element.javaProperty}" label="${element.getRemarks()}">
+                </el-table-column>
+#end
+#end
+
+                <el-table-column label="操作" fixed="right">
+                    <template slot-scope="scope">
+                        <el-button type="text" size="small" @click="handleDetail(scope.row)">详细</el-button>
+                        <el-button type="text" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button class="close" type="text" size="small" @click="handleDel(scope.$index, scope.row)">删除
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </template>
+        </dj-list>
+        <${start}${str}Dialog ref="detail"></${start}${str}Dialog>
+    </dj-content>
+</template>
+
+<script>
+    import djList from 'src/components/layout/list.vue'
+    import ${start}${str}Dialog from './components/${start}${str}Dialog.vue';
+
+    import {
+        delete${className},
+        get${className}PageList,
+    } from 'src/api/modules/$start$str';
+
+    export default {
+        data() {
+            return {
+                filters: {
+                    ${Columns2.javaProperty}: null
+                },
+            }
+        },
+        methods: {
+            getData(filters, page) {
+                const filter = Object.assign({}, filters, page);
+                return get${className}PageList(filter);
+            },
+            //获取列表
+            //删除
+            handleDel (index, row) {
+                this.$confirm('确认删除该记录吗?', '提示', {
+                    type: 'warning'
+                }).then(()=> {
+                    this.listLoading = true;
+                    const param = {
+                        id: row.id
+                    };
+                    delete${className}(null,param).then((res) => {
+                        this.listLoading = false;
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getList();
+                    });
+            });
+            },
+            getList() {
+                this.$refs.list.getList();
+            },
+            //显示编辑界面
+            handleEdit (index, row) {
+                this.$refs.detail.edit(row).then${Kouhao}${Kouhao}) => {
+                    this.getList();
+                });
+            },
+            //显示新增页面
+            handleAdd() {
+                this.$refs.detail.add().then${Kouhao}${Kouhao}) => {
+                    this.getList();
+                });
+            },
+            //显示详细页面
+            handleDetail(row){
+                this.$refs.detail.detail(row);
+            },
+        },
+        compute: {},
+        mounted() {
+        },
+        components: {
+            djList,
+            ${start}${str}Dialog,
+        },
+    }
+
+</script>
+
+<style scoped>
+
+</style>

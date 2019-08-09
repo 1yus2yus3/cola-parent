@@ -1,0 +1,35 @@
+package ${serviceImplPackage};
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import tech.kictto.common.core.BaseServiceImpl;
+import ${entityPackage}.${className}Entity;
+import ${repoPackage}.${className}Repo;
+import ${servicePackage}.${className}Service;
+
+import javax.annotation.Resource;
+
+/**
+ *
+ * @author kictto code generator
+ *
+ */
+@Transactional
+@Service
+public class ${className}ServiceImpl extends BaseServiceImpl<${className}Entity> implements ${className}Service {
+    #set( $end=$className.length() )
+    #set( $str=$className.substring( 1 ,$end ) )
+    #set( $start = $className.substring(0,1).toLowerCase() )
+
+    private ${className}Repo ${start}${str}Repo;
+
+
+    @Resource
+    public void set${className}Repo(${className}Repo ${start}${str}Repo) {
+	    this.${start}${str}Repo = ${start}${str}Repo;
+        super.setRepo(${start}${str}Repo);
+    }
+
+
+
+}

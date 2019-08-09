@@ -1,0 +1,29 @@
+package ${repoPackage};
+
+import org.springframework.stereotype.Repository;
+import tech.kictto.common.core.BaseRepo;
+import tech.kictto.common.dao.CommonDao;
+import ${entityPackage}.${className}Entity;
+
+import javax.annotation.Resource;
+
+/**
+ *
+ * @author kictto code generator
+ *
+ */
+@Repository
+public class ${className}Repo extends BaseRepo<${className}Entity> {
+
+    private CommonDao commonDao;
+
+    @Resource
+    public void setCommonDao(CommonDao commonDao) {
+	    this.commonDao = commonDao;
+    	super.setCommonDao(commonDao);
+    	super.setClazz(${className}Entity.class);
+    }
+
+
+
+}

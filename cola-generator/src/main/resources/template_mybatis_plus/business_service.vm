@@ -1,0 +1,70 @@
+package ${businessPackage};
+
+import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.plugins.Page;
+import ${entityPackage}.${className}${entityFileSuffix};
+
+import java.util.List;
+
+/**
+* Copyright (C),
+* @author: CodeGenerator
+* @date: ${currentTime}
+* @description:
+*/
+#set( $end=$className.length() )
+#set( $str=$className.substring( 1 ,$end ) )
+#set( $start = $className.substring(0,1).toLowerCase() )
+public interface ${className}${businessServiceFileSuffix} {
+
+    /**
+     * 根据ID查询，包括逻辑删除数据
+     *
+     * @param id
+     * @return
+     */
+    ${className}${entityFileSuffix} findById(Long id);
+
+    /**
+     * 新增
+     *
+     * @param $start$str${entityFileSuffix}
+     * @return
+     */
+    Boolean insert${className}(${className}${entityFileSuffix} $start$str${entityFileSuffix});
+
+    /**
+     * 更新
+     *
+     * @param $start$str${entityFileSuffix}
+     * @return
+     */
+    Boolean update${className}(${className}${entityFileSuffix} $start$str${entityFileSuffix});
+
+    /**
+     * 查询列表，若要查询有效数据，设置valid=true
+     *
+     * @param wrapper
+     * @return
+     */
+    List<${className}${entityFileSuffix}> findList(Wrapper<${className}${entityFileSuffix}> wrapper);
+
+    /**
+     * 分页，若要查询有效数据，设置valid=true
+     *
+     * @param pageModel
+     * @param wrapper
+     * @return
+     */
+    Page<${className}${entityFileSuffix}> findPage(Page<${className}${entityFileSuffix}> pageModel, Wrapper<${className}${entityFileSuffix}> wrapper);
+
+    /**
+     * 逻辑删除
+     * 需传id，modifierId，modifier
+     *
+     * @param $start$str${entityFileSuffix}
+     * @return
+     */
+    Boolean delete${className}(${className}${entityFileSuffix} $start$str${entityFileSuffix});
+
+}

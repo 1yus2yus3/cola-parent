@@ -1,0 +1,339 @@
+#set( $Columns2=$tableInfo.baseColumns[1] )
+#set( $end=$className.length() )
+#set( $str=$className.substring( 1 ,$end ) )
+#set( $start = $className.substring(0,1).toLowerCase() )
+
+<template>
+    <dj-content>
+        <div slot="title-right">
+            <el-button class="CornerButton" type="primary" @click="handleAdd">新增</el-button>
+        </div>
+        <!--工具条-->
+        <div @keyup.enter="getList">
+            <djSearchForm>
+                <el-form :inline="true" :model="filters" size="small">
+                    <el-form-item label="1--Android,2--IOS">
+                        <el-input size="small" v-model="filters.${Columns2.javaProperty}"
+                                  placeholder="${Columns2.getRemarks()}"></el-input>
+                    </el-form-item>
+                </el-form>
+                <div slot="scope">
+                    <el-button size="small" v-on:click="getList">查询</el-button>
+                </div>
+            </djSearchForm>
+        </div>
+
+        <!--列表-->
+        <el-table class="dj-table" :data="records" highlight-current-row v-loading="listLoading"
+                  @selection-change="selectChange">
+#foreach($element in ${tableInfo.baseColumns})
+    #if($element.javaProperty!="createDate"&&$element.javaProperty!="creatorId"&&$element.javaProperty!="creator"
+        &&$element.javaProperty!="modifyDate"&&$element.javaProperty!="modifier"&&$element.javaProperty!="modifierId"
+        &&$element.javaProperty!="valid")
+                <el-table-column prop="${element.javaProperty}" label="${element.getRemarks()}">
+                </el-table-column>
+    #end
+#end
+            <el-table-column label="操作" width="135" fixed="right">
+                <template slot-scope="scope">
+                    <el-button type="text" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                    <el-button type="text" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+                    <el-button type="text" size="small" @click="handleDetail(scope.$index, scope.row)">详情</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <dj-pagination @current-change="handleCurrentChange" :page-size='pageSize'
+                       :total="total">
+        </dj-pagination>
+
+        <!--编辑界面-->
+        <el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false">
+            <el-form class="form-ipt" :inline="true" :model="editForm" label-width="100px" :rules="formRules"
+                     ref="editForm" size="small">
+                #foreach($element in ${tableInfo.baseColumns})
+                    #if($element.javaProperty!="createDate"&&$element.javaProperty!="creatorId"&&$element.javaProperty!="creator"&&
+                        $element.javaProperty!="modifyDate"&&$element.javaProperty!="modifier"&&$element.javaProperty!="modifierId"
+                    &&$element.javaProperty!="valid")
+                <el-row>
+                    <el-col :span="11">
+                        <el-form-item label="${element.getRemarks()}" prop="${element.javaProperty}">
+                            <el-input v-model="editForm.${element.javaProperty}" auto-complete="off"
+                                      :maxlength="4"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                    #end
+                #end
+
+
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="resetEditForm">取消</el-button>
+                <el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
+            </div>
+        </el-dialog>
+
+        <!--新增界面-->
+        <el-dialog title="新增" :visible.sync="addFormVisible" :close-on-click-modal="false">
+            <el-form :model="addForm" label-width="100px"  :rules="formRules" ref="addForm" class="form-ipt"
+                     :inline="true"
+                     size="small">
+                #foreach($element in ${tableInfo.baseColumns})
+                    #if($element.javaProperty!="createDate"&&$element.javaProperty!="creatorId"&&$element.javaProperty!="creator"&&
+                        $element.javaProperty!="modifyDate"&&$element.javaProperty!="modifier"&&$element.javaProperty!="modifierId"
+                    &&$element.javaProperty!="valid")
+                    <el-row>
+                        <el-col :span="11">
+                            <el-form-item label="${element.getRemarks()}" prop="${element.javaProperty}">
+                                <el-input v-model="addForm.${element.javaProperty}" auto-complete="off"
+                                          :maxlength="4"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    #end
+                #end
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="resetAddForm">取消</el-button>
+                <el-button type="primary" @click.native="addSubmit" :loading="addLoading">提交</el-button>
+            </div>
+        </el-dialog>
+        <!--详情-->
+        <el-dialog title="工单详情" :visible.sync="detailFormVisible" :close-on-click-modal="false" id="detailForm">
+            <el-form class="form-ipt" :inline="true" :model="list" label-width="100px"
+                     ref="list" size="small">
+                #foreach($element in ${tableInfo.baseColumns})
+                    #if($element.javaProperty!="createDate"&&$element.javaProperty!="creatorId"&&$element.javaProperty!="creator"&&
+                        $element.javaProperty!="modifyDate"&&$element.javaProperty!="modifier"&&$element.javaProperty!="modifierId"
+                    &&$element.javaProperty!="valid")
+                <el-row>
+                    <el-col :span="11">
+                        <el-form-item label="${element.getRemarks()}">
+                            <span>{{list.${element.javaProperty}}}</span>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                    #end
+                #end
+            </el-form>
+
+        </el-dialog>
+    </dj-content>
+</template>
+
+<script>
+    import {
+        get${className}ById,
+        insert${className},
+        update${className},
+        delete${className},
+        get${className}PageList,
+    } from 'src/api/$start$str';
+
+    export default {
+        components: {},
+        data() {
+            return {
+                filters: {
+                    ${Columns2.javaProperty}: null,
+                },
+                records: [],
+                total: 0,
+                current: 1,
+                pageSize: 20,
+                listLoading: false,
+                selections: [], // 列表选中列
+                editFormVisible: false, // 编辑界面是否显示
+                editLoading: false,
+                // 编辑界面数据
+                editForm: {
+            #foreach($element in ${tableInfo.baseColumns})
+                #if($element.javaProperty!="createDate"&&$element.javaProperty!="creatorId"&&$element.javaProperty!="creator"&&
+                    $element.javaProperty!="modifyDate"&&$element.javaProperty!="modifier"&&$element.javaProperty!="modifierId"
+                &&$element.javaProperty!="valid")
+                    ${element.javaProperty}:null,
+                #end
+            #end
+                },
+                addFormVisible: false, // 新增界面是否显示
+                detailFormVisible: false, // 详情界面是否显示
+                list: {
+            #foreach($element in ${tableInfo.baseColumns})
+                #if($element.javaProperty!="createDate"&&$element.javaProperty!="creatorId"&&$element.javaProperty!="creator"&&
+                    $element.javaProperty!="modifyDate"&&$element.javaProperty!="modifier"&&$element.javaProperty!="modifierId"
+                &&$element.javaProperty!="valid")
+                    ${element.javaProperty}:null,
+                #end
+            #end
+                },
+                addLoading:
+                        false,
+                formRules:
+                        {
+                            ${Columns2.javaProperty}:
+                                    [
+                                        {required: true, message: '请输入${Columns2.getRemarks()}', trigger: 'blur,change'},
+                                    ],
+                        }
+                ,
+                // 新增界面数据
+                addForm: {
+                    code: null,
+                }
+                ,
+            }
+                    ;
+
+        },
+        methods: {
+            handleCurrentChange(val) {
+                this.current = val;
+                this.getList();
+            },
+            // 获取列表
+            getList() {
+                const {filters} = this;
+                const param = {
+                    current: this.current,
+                    size: this.pageSize,
+                };
+                if (filters.terminalType) {
+                    param.terminalType = filters.terminalType;
+                }
+                this.listLoading = true;
+                get${className}PageList(param).then((result) => {
+                    this.total = result.data.total;
+                    this.records = result.data.records;
+                    this.listLoading = false;
+            })
+                ;
+            },
+            //详情
+            handleDetail: function (index, row) {
+                console.log('11111');
+                const param = {
+                    id: row.id
+                };
+                get${className}ById(param).then(({data}) => {
+                    this.list = data;
+                    this.detailFormVisible = true;
+            })
+                ;
+            }
+            ,
+            // 删除
+            handleDel: function (index, row) {
+                this.$confirm('确认删除该记录吗?', '提示', {
+                    type: 'warning'
+                }).then(() => {
+                    this.listLoading = true;
+                const param = {
+                    id: row.id
+                };
+                delete${className}(null, param).then((res) => {
+                    this.listLoading = false;
+                    this.$message({
+                        message: '删除成功',
+                        type: 'success'
+                    });
+                    this.getList();
+                })
+                ;
+            })
+                ;
+            }
+            ,
+
+            // 显示新增界面
+            handleAdd() {
+                this.addFormVisible = true;
+                const {addForm} = this;
+                Object.keys(addForm).forEach((item) => {
+                    addForm[item] = null;
+            })
+                ;
+            }
+            ,
+            resetEditForm() {
+                this.editFormVisible = false;
+                this.$refs.editForm.resetFields();
+            }
+            ,
+            // 显示编辑界面
+            handleEdit(index, row) {
+                const {editForm} = this;
+                const param = {
+                    id: row.id
+                };
+                get${className}ById(param).then((result) => {
+                    this.editFormVisible = true;
+                Object.assign(editForm, result.data);
+            })
+                ;
+            }
+            ,
+            // 编辑
+            editSubmit() {
+                this.editLoading = true;
+                const para = Object.assign({}, this.editForm);
+                update${className}(para).then((result) => {
+                    this.editLoading = false;
+                    if (result.success) {
+                        this.$message({
+                            message: '提交成功',
+                            type: 'success',
+                        });
+                        this.$refs.editForm.resetFields();
+                        this.editFormVisible = false;
+                        this.getList();
+                    } else {
+                        this.$message({
+                            message: result.message,
+                            type: 'error',
+                        });
+                    }
+            }).catch(() => {
+                    this.editFormVisible = false;
+            })
+                ;
+            }
+
+            ,
+            resetAddForm() {
+                this.addFormVisible = false;
+                this.$refs.addForm.resetFields();
+            }
+            ,
+            // 新增
+            addSubmit() {
+
+                const para = Object.assign({}, this.addForm);
+                insert${className}(para).then((res) => {
+                    this.addLoading = false;
+                    if (!res.success) {
+                        return;
+                    }
+                    this.$message({
+                        message: '提交成功',
+                        type: 'success',
+                    });
+                    this.$refs.addForm.resetFields();
+                    this.addFormVisible = false;
+                    this.getList();
+            }).catch(() => {
+                    this.addLoading = false;
+            })
+                ;
+            }
+            ,
+            selectChange(event) {
+            }
+            ,
+        },
+        mounted() {
+            this.getList();
+        }
+        ,
+    }
+    ;
+</script>

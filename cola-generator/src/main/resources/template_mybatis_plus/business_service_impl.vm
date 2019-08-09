@@ -1,0 +1,76 @@
+package ${businessImplPackage};
+
+import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.plugins.Page;
+import com.dianji.kangaroo.parts.exception.ApiException;
+import com.dianji.kangaroo.parts.biz.enums.ApiExceptionEnum;
+import ${entityPackage}.${className}${entityFileSuffix};
+import ${businessPackage}.${className}${businessServiceFileSuffix};
+import ${servicePackage}.${className}${serviceFileSuffix};
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.List;
+
+/**
+* Copyright (C),
+* @author: CodeGenerator
+* @date: ${currentTime}
+* @description:
+*/
+#set( $end=$className.length() )
+#set( $str=$className.substring( 1 ,$end ) )
+#set( $start = $className.substring(0,1).toLowerCase() )
+@Transactional
+@Service("$start$str${businessServiceFileSuffix}")
+public class ${className}${businessServiceImplFileSuffix} implements ${className}${businessServiceFileSuffix} {
+
+    @Resource
+    private ${className}${serviceFileSuffix} $start$str${serviceFileSuffix};
+
+    @Override
+    public ${className}${entityFileSuffix} findById(Long id) {
+        if (id == null) {
+            throw new ApiException(ApiExceptionEnum.NO_PARAM_ERROR);
+        }
+        return $start$str${serviceFileSuffix}.selectById(id);
+    }
+
+    @Override
+    public Boolean insert${className}(${className}${entityFileSuffix} $start$str${entityFileSuffix}) {
+        if ($start$str${entityFileSuffix} == null) {
+            throw new ApiException(ApiExceptionEnum.NO_PARAM_ERROR);
+        }
+        return $start$str${serviceFileSuffix}.insert($start$str${entityFileSuffix});
+    }
+
+    @Override
+    public Boolean update${className}(${className}${entityFileSuffix} $start$str${entityFileSuffix}) {
+        if ($start$str${entityFileSuffix} == null) {
+            throw new ApiException(ApiExceptionEnum.NO_PARAM_ERROR);
+        }
+        return $start$str${serviceFileSuffix}.updateById($start$str${entityFileSuffix});
+    }
+
+    @Override
+    public List<${className}${entityFileSuffix}> findList(Wrapper<${className}${entityFileSuffix}> wrapper) {
+        return $start$str${serviceFileSuffix}.selectList(wrapper);
+    }
+
+    @Override
+    public Page<${className}${entityFileSuffix}> findPage(Page<${className}${entityFileSuffix}> pageModel, Wrapper<${className}${entityFileSuffix}> wrapper) {
+        Page<${className}${entityFileSuffix}> resultPage = $start$str${serviceFileSuffix}.selectPage(pageModel, wrapper);
+        return resultPage;
+    }
+
+    @Override
+    public Boolean delete${className}(${className}${entityFileSuffix} $start$str${entityFileSuffix}) {
+        if ($start$str${entityFileSuffix} == null || $start$str${entityFileSuffix}.getId() == null) {
+
+        }
+        $start$str${entityFileSuffix}.setValid(false);
+        return $start$str${serviceFileSuffix}.updateById($start$str${entityFileSuffix});
+    }
+
+}

@@ -1,0 +1,97 @@
+package ${controllerPackage};
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.plugins.Page;
+import com.easysoft.common.entity.result.platform.ResultWrapper;
+import ${entityPackage}.${className}${entityFileSuffix};
+import ${businessPackage}.${className}${businessServiceFileSuffix};
+import com.yangche51.trade.service.UserLoginService;
+import com.yangche51.usercenter.client.dto.PointUserLoginResult;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Map;
+
+/**
+* Copyright (C),
+* @author: CodeGenerator
+* @date: ${currentTime}
+* @description:
+*/
+@Controller
+#if($putModuleNameIntoUrl)
+@RequestMapping("/${moduleName}/${className}")
+#end
+#if(!$putModuleNameIntoUrl)
+@RequestMapping("/${className}")
+#end
+
+public class ${className}${controllerFileSuffix} {
+#set( $end=$className.length() )
+#set( $str=$className.substring( 1 ,$end ) )
+#set( $start = $className.substring(0,1).toLowerCase() )
+    @Resource
+    private ${className}${businessServiceFileSuffix} $start$str${businessServiceFileSuffix};
+    @Resource
+    private UserLoginService userLoginService;
+
+    @ResponseBody
+    @RequestMapping(value = "getById", method = RequestMethod.GET)
+        public Map<String, Object> getById(@RequestParam("id") Long id) {
+        ${className}${entityFileSuffix} $start$str${entityFileSuffix} = $start$str${businessServiceFileSuffix}.findById(id);
+        return ResultWrapper.success($start$str${entityFileSuffix});
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "insert", method = RequestMethod.POST)
+    public Map<String, Object> insert(@RequestBody ${className}${entityFileSuffix} $start$str${entityFileSuffix}) {
+        PointUserLoginResult user = userLoginService.getLoginUser();
+        $start$str${entityFileSuffix}.setCreatorId(user.getId());
+        $start$str${entityFileSuffix}.setCreator(user.getRealName());
+        if ($start$str${businessServiceFileSuffix}.insert${className}($start$str${entityFileSuffix})) {
+            return ResultWrapper.success("添加成功");
+        } else {
+            return ResultWrapper.fail("添加失败");
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "update", method = RequestMethod.POST)
+    public Map<String, Object> update(@RequestBody ${className}${entityFileSuffix} $start$str${entityFileSuffix}) {
+        PointUserLoginResult user = userLoginService.getLoginUser();
+        $start$str${entityFileSuffix}.setModifierId(user.getId());
+        $start$str${entityFileSuffix}.setModifier(user.getRealName());
+        if ($start$str${businessServiceFileSuffix}.update${className}($start$str${entityFileSuffix})) {
+            return ResultWrapper.success("修改成功");
+        } else {
+            return ResultWrapper.fail("修改失败");
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "delete", method = RequestMethod.POST)
+    public Map<String, Object> delete(@RequestParam("id") Long id) {
+        PointUserLoginResult user = userLoginService.getLoginUser();
+        ${className}${entityFileSuffix} $start$str${entityFileSuffix} = new ${className}${entityFileSuffix}();
+        $start$str${entityFileSuffix}.setId(id);
+        $start$str${entityFileSuffix}.setModifierId(user.getId());
+        $start$str${entityFileSuffix}.setModifier(user.getRealName());
+        if ($start$str${businessServiceFileSuffix}.delete${className}($start$str${entityFileSuffix})) {
+            return ResultWrapper.success("删除成功");
+        } else {
+            return ResultWrapper.fail("删除失败");
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "getPageList", method = {RequestMethod.GET,RequestMethod.POST})
+    public Map<String, Object> getPageList(Page<${className}${entityFileSuffix}> pageModel, ${className}${entityFileSuffix} $start$str${entityFileSuffix}) {
+        EntityWrapper<${className}${entityFileSuffix}> wrapper = new EntityWrapper<>($start$str${entityFileSuffix});
+        //设置为true，即忽略逻辑删除掉的数据，若需要全部数据，则注释掉
+        //$start$str${entityFileSuffix}.setValid(true);
+        Page<${className}${entityFileSuffix}> ${className}${entityFileSuffix}PageModel = $start$str${businessServiceFileSuffix}.findPage(pageModel, wrapper);
+        return ResultWrapper.success(${className}${entityFileSuffix}PageModel);
+    }
+}
+

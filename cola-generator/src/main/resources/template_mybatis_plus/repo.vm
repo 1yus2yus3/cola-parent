@@ -1,0 +1,16 @@
+package ${repoPackage};
+
+import com.baomidou.mybatisplus.mapper.BaseMapper;
+import ${entityPackage}.${className}${entityFileSuffix};
+
+import javax.annotation.Resource;
+
+/**
+* Copyright (C),
+* @author: CodeGenerator
+* @date: ${currentTime}
+* @description:
+*/
+public interface ${className}${repoFileSuffix} extends BaseMapper<${className}${entityFileSuffix}> {
+
+}

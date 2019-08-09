@@ -1,0 +1,74 @@
+package ${entityPackage};
+
+import com.baomidou.mybatisplus.activerecord.Model;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.enums.IdType;
+import com.baomidou.mybatisplus.annotations.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableLogic;
+
+import java.io.Serializable;
+
+/**
+* Copyright (C),
+* @author: CodeGenerator
+* @date: ${currentTime}
+* @description:
+*/
+@TableName("${tableInfo.name}")
+public class ${className}${entityFileSuffix} extends Model<${className}${entityFileSuffix}> {
+
+#foreach($element in ${tableInfo.baseColumns})
+	/**
+	* ${element.getRemarks()}
+	*/
+#if($element.isPk())
+	@TableId(type = IdType.AUTO)
+#end
+#if($element.getFullyQualifiedJavaType().getFullyQualifiedName() == "java.util.Date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+#end
+
+#if($element.javaProperty == "deleted")
+	@TableField(value = "deleted")
+	@TableLogic
+#end
+	private ${element.getFullyQualifiedJavaType().getFullyQualifiedName()} ${element.javaProperty};
+#end
+
+	public ${className}${entityFileSuffix}() {
+	}
+
+#foreach($element in ${tableInfo.baseColumns})
+	#set( $end=$element.javaProperty.length() )
+	#set( $str=$element.javaProperty.substring( 1 ,$end ) )
+	#set( $start = $element.javaProperty.substring(0,1).toUpperCase() )
+	#set( $get = "get")
+	#if($element.getFullyQualifiedJavaType().getFullyQualifiedName().endsWith("boolean") )
+		#set( $get = "is")
+	#end
+
+	public ${element.getFullyQualifiedJavaType().getFullyQualifiedName()} $get$start$str() {
+		return ${element.javaProperty};
+	}
+
+	public void set$start$str(${element.getFullyQualifiedJavaType().getFullyQualifiedName()} ${element.javaProperty}) {
+		this.${element.javaProperty} = ${element.javaProperty};
+	}
+#end
+
+	@Override
+	public String toString() {
+		return "${className}DO{" +
+#foreach($element in ${tableInfo.baseColumns})
+			"#if($velocityCount != 1),#end${element.javaProperty}=" + ${element.javaProperty} +
+#end
+		'}';
+	}
+
+    @Override
+    protected Serializable pkVal() {
+    	return this.id;
+    }
+}

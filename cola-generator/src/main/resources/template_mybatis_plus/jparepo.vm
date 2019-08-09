@@ -1,0 +1,17 @@
+package ${repoPackage};
+
+import ${entityPackage}.${className}${entityFileSuffix};
+import org.springframework.data.repository.CrudRepository;
+
+import javax.transaction.Transactional;
+
+/**
+* Copyright (C),
+* @author: CodeGenerator
+* @date: ${currentTime}
+* @description:
+*/
+@Transactional
+public interface ${className}${repoFileSuffix} extends CrudRepository<${className}${entityFileSuffix},Long> {
+
+}

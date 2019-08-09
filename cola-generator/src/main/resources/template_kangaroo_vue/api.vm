@@ -1,0 +1,36 @@
+/**
+* Copyright (C)
+* FileName: ${className}
+* Author: CodeGenerator
+* Date: ${currentTime}
+* Description:
+*/
+import { get, post } from 'src/http/method';
+
+#set( $end=$className.length() )
+#set( $str=$className.substring( 1 ,$end ) )
+#set( $start = $className.substring(0,1).toLowerCase() )
+
+/**
+* 根据ID，获取详细
+*/
+export const get${className}ById = (param) => get('$start$str/getById', param);
+/**
+* 新增
+*/
+export const insert${className} = param => post('$start$str/insert', param);
+/**
+* 修改
+*/
+export const update${className} = param => post('$start$str/update', param);
+
+/**
+* 删除
+*/
+export const delete${className} = (param, config) => post('$start$str/delete', param, { params:config });
+/**
+* 分页查询
+*/
+export const get${className}PageList = (params) => post('$start$str/getPageList',  null,  { params:params });
+
+

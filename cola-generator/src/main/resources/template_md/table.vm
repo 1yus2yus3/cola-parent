@@ -1,0 +1,26 @@
+#set( $mark="#")
+${mark}${mark} 目录
+|所属模块|表名|备注|
+|-------|----|---|
+#foreach($module in $moduleInfo.entrySet())
+#foreach($table in $module.value)
+|[${module.key}](${mark}${module.key})|[${table.name}](${mark}${table.name})|${table.getRemarks()}|
+#end
+#end
+#foreach($module in $moduleInfo.entrySet())
+${mark}${mark} ${module.key}
+
+#foreach($table in $module.value)
+${mark}${mark}${mark} ${table.name}
+
+${mark}${mark}${mark}${mark} ${table.getRemarks()}
+
+| 列名| 类型 | 长度 | 备注 |
+| ---- |:----:| :----:|------:|
+#foreach($element in $table.baseColumns)
+| ${element.name} | ${element.jdbcTypeName} | ${element.length} |${element.remarks}|
+#end
+
+#end
+***
+#end
