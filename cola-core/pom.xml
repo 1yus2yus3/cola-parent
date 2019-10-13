@@ -91,6 +91,18 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.yus</groupId>
+            <artifactId>web-admin</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.yus</groupId>
+            <artifactId>web-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
 	</dependencies>
 
     <build>

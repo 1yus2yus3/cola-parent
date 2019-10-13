@@ -1,10 +1,5 @@
 package com.yus.core;
 
-import com.github.abel533.database.DatabaseConfig;
-import com.github.abel533.database.Dialect;
-import com.github.abel533.database.IntrospectedTable;
-import com.github.abel533.database.SimpleDataSource;
-import com.github.abel533.utils.DBMetadataUtils;
 import com.yus.generator.CodeGenerator;
 import com.yus.generator.GenerateParam;
 
@@ -55,10 +50,14 @@ public class CodeGeneratorTool {
         List<Map<String, List<String>>> moduleTables = new ArrayList<>();
         Map<String, List<String>> module = new HashMap<>();
         List<String> tables = new ArrayList<>();
-        tables.add("mkt_event");
+        tables.add("m_permission");
+        tables.add("m_role");
+        tables.add("m_role_permission");
+        tables.add("m_user_admin");
+        tables.add("m_user_role");
+
 
         module.put("core", tables);
-
 
 
         moduleTables.add(module);
